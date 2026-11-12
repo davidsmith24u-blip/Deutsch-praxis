@@ -71,7 +71,7 @@ export default function StreetClient({ itemOfTheDay }: { itemOfTheDay: StreetIte
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-lg font-semibold">Archive</h2>
           <div className="ml-auto flex gap-1.5">
-            {["all", "A1", "A2", "B1", "B2"].map((l) => (
+            {["all", "A1", "A2", "B1", "B2", "C1", "C2"].map((l) => (
               <button
                 key={l}
                 onClick={() => setLevel(l)}

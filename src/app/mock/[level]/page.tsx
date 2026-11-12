@@ -4,7 +4,7 @@ import MockExam from "@/components/mock-exam";
 
 export const dynamic = "force-dynamic";
 
-const LEVELS = ["A1", "A2", "B1", "B2"] as const;
+const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
 
 function byLevel(level: string): Exercise[] {
   return UNITS.filter((u) => u.level === level).flatMap((u) => u.exercises);

@@ -123,6 +123,22 @@ const WORTLISTE: Array<[string, string, string]> = [
   ["die Höflichkeit", "the politeness", "B2"],
   ["das Missverständnis", "the misunderstanding", "B2"],
   ["die Gewohnheit", "the habit", "B2"],
+  ["die Aushandlung", "the negotiation (process)", "C1"],
+  ["der Zusammenhang", "the connection / context", "C1"],
+  ["die Herausforderung", "the challenge", "C1"],
+  ["die Tendenz", "the tendency", "C1"],
+  ["der Anstieg", "the increase / rise", "C1"],
+  ["das Zugeständnis", "the concession", "C1"],
+  ["vertagen", "to adjourn / postpone (formal)", "C1"],
+  ["die Haftung", "the liability", "C1"],
+  ["die Kompetenz", "the competence", "C1"],
+  ["das Register", "the register (style level)", "C2"],
+  ["die Ironie", "the irony", "C2"],
+  ["nuanciert", "nuanced", "C2"],
+  ["das Understatement", "the understatement", "C2"],
+  ["die Prioritätensetzung", "prioritisation", "C2"],
+  ["befristet", "time-limited", "C2"],
+  ["das Mietverhältnis", "the tenancy", "C2"],
 ];
 
 function wordlist(): VocabItem[] {

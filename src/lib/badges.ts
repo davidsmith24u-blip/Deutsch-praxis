@@ -43,6 +43,6 @@ export async function computeBadges(userId: string, level: string, streak: numbe
     { id: "streak-7", title: "Unstoppable", description: "7-day learning streak", emoji: "⚡", earned: s.streak >= 7 },
     { id: "reviewer", title: "Word Collector", description: "20 spaced-repetition reviews", emoji: "📚", earned: s.cardsReviewed >= 20 },
     { id: "exam-passer", title: "Exam Ready", description: "Pass a practice exam", emoji: "🎓", earned: s.examsPassed >= 1 },
-    { id: "level-up", title: "Level Up", description: "Reach A2 or higher", emoji: "📈", earned: ["A2", "B1", "B2"].includes(s.level) },
+    { id: "level-up", title: "Level Up", description: "Reach A2 or higher", emoji: "📈", earned: ["A2", "B1", "B2", "C1", "C2"].includes(s.level) },
   ];
 }

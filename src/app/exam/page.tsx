@@ -14,7 +14,7 @@ export default function ExamPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [timeLeft, setTimeLeft] = useState(300);
   const [finished, setFinished] = useState(false);
-  const [levelFilter, setLevelFilter] = useState<"Mixed" | "A1" | "A2" | "B1" | "B2">("Mixed");
+  const [levelFilter, setLevelFilter] = useState<"Mixed" | "A1" | "A2" | "B1" | "B2" | "C1" | "C2">("Mixed");
 
   const poolFor = (lvl: string) =>
     UNITS.filter((u) => lvl === "Mixed" || u.level === lvl)
@@ -44,7 +44,7 @@ export default function ExamPage() {
   }, [started, finished]);
 
   if (!started) {
-    const levelOptions: Array<"Mixed" | "A1" | "A2" | "B1" | "B2"> = ["Mixed", "A1", "A2", "B1", "B2"];
+    const levelOptions: Array<"Mixed" | "A1" | "A2" | "B1" | "B2" | "C1" | "C2"> = ["Mixed", "A1", "A2", "B1", "B2", "C1", "C2"];
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 space-y-8">
         <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-10 text-center text-white shadow-lg">
@@ -84,7 +84,7 @@ export default function ExamPage() {
         <div className="rounded-2xl border bg-card p-5 text-center space-y-3">
           <p className="text-sm font-medium">Want the real thing? Take a full mock exam with all four modules:</p>
           <div className="flex flex-wrap justify-center gap-2">
-            {["A1", "A2", "B1", "B2"].map((l) => (
+            {["A1", "A2", "B1", "B2", "C1", "C2"].map((l) => (
               <a key={l} href={`/mock/${l.toLowerCase()}`} className="inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium hover:bg-accent">
                 🎓 {l} mock exam
               </a>

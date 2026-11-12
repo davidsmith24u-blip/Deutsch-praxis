@@ -5,8 +5,8 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { UNITS } from "@/data/units";
 
-const LEVELS = ["A1", "A2", "B1", "B2"];
-const LEVEL_ORDER = ["A1", "A2", "B1", "B2"];
+const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const LEVEL_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 export default function PlanClient({ currentLevel }: { currentLevel: string }) {
   const [from, setFrom] = useState(currentLevel in LEVELS ? currentLevel : "A1");

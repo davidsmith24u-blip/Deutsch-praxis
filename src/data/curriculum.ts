@@ -1,4 +1,4 @@
-export type LevelCode = "A1" | "A2" | "B1" | "B2";
+export type LevelCode = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
 export interface VocabItem {
   word: string;
@@ -46,6 +46,8 @@ export const LEVELS: { code: LevelCode; title: string; description: string; orde
   { code: "A2", title: "A2 — Elementary", description: "Daily routines, past tense, modals.", order: 2 },
   { code: "B1", title: "B1 — Intermediate", description: "Subordinate clauses, opinions, travel & work.", order: 3 },
   { code: "B2", title: "B2 — Upper Intermediate", description: "Complex grammar, argumentation, professional topics.", order: 4 },
+  { code: "C1", title: "C1 — Advanced", description: "Academic texts, negotiations, abstract argumentation.", order: 5 },
+  { code: "C2", title: "C2 — Mastery", description: "Nuance, style, register, high-stakes communication.", order: 6 },
 ];
 
 export const LESSONS: Lesson[] = [

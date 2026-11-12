@@ -1,5 +1,5 @@
 export type Skill = "lesen" | "hoeren" | "schreiben" | "sprechen";
-export type LevelCode = "A1" | "A2" | "B1" | "B2";
+export type LevelCode = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
 export interface Exercise {
   id: string;
@@ -353,6 +353,95 @@ export const UNITS: Unit[] = [
       { id: "b2u4-sp1", skill: "sprechen", type: "speaking", prompt: "Role-play: politely disagree with a colleague's idea.", modelAnswer: "Ich verstehe deinen Punkt, allerdings sehe ich das etwas anders, weil ...", taskType: "roleplay" },
     ],
   },
+// C1 units
+  {
+    id: "c1-u1",
+    level: "C1",
+    title: "Unit 1: Academic Texts & Statistics",
+    description: "Understand and discuss studies, charts, and editorials.",
+    objective: "You can analyse an academic text or chart and summarise its argument precisely.",
+    recycles: ["nominalisation", "passive voice", "connectors"],
+    order: 1,
+    unlockThreshold: 0,
+    exercises: [
+      { id: "c1u1-h1", skill: "hoeren", type: "mcq", prompt: "What does the researcher consider the main cause?", options: ["Changed work patterns", "Rising rents", "Smaller households"], answer: "Changed work patterns", audioText: "Als Hauptursache sehen wir nicht die Mieten, sondern veränderte Arbeitsmodelle, etwa die Zunahme von Fernarbeit.", transcript: "Als Hauptursache sehen wir nicht die Mieten, sondern veränderte Arbeitsmodelle, etwa die Zunahme von Fernarbeit." },
+      { id: "c1u1-h2", skill: "hoeren", type: "gapfill", prompt: "Fill in: Die Studie kommt zu dem ___, dass die Zahl weiter steigen wird.", answer: "Schluss", audioText: "Die Studie kommt zu dem Schluss, dass die Zahl weiter steigen wird.", transcript: "Die Studie kommt zu dem Schluss, dass die Zahl weiter steigen wird." },
+      { id: "c1u1-r1", skill: "lesen", type: "mcq", prompt: "What does 'eine Tendenz aufweisen' mean in a statistics text?", options: ["To show a tendency", "To avoid a trend", "To measure exactly"], answer: "To show a tendency", vocab: [{ word: "aufweisen", definition: "to exhibit/show (formal)" }, { word: "die Tendenz", definition: "the tendency" }, { word: "der Anstieg", definition: "the increase" }] },
+      { id: "c1u1-r2", skill: "lesen", type: "open", prompt: "Rewrite formally: 'Man hat festgestellt, dass viele Leute weniger arbeiten.' Use nominalisation (die Verkürzung der Arbeitszeit ...).", modelAnswer: "Es wurde eine Verkürzung der Arbeitszeit festgestellt." },
+      { id: "c1u1-s1", skill: "schreiben", type: "writing", prompt: "Describe a chart ( Beschreibung eines Diagramms) in 5 sentences: what rises, what falls, and one possible explanation.", modelAnswer: "Das Diagramm zeigt einen deutlichen Anstieg der Fernarbeit seit 2020. Während die Zahl der Büroarbeitsplätze sank, stieg die Zufriedenheit der Beschäftigten. Eine mögliche Erklärung liegt in der flexibleren Zeitplanung. Zudem entfallen Pendelzeiten, was Produktivität und Wohlbefinden fördert. Insgesamt deutet die Entwicklung auf einen strukturellen Wandel hin." },
+      { id: "c1u1-sp1", skill: "sprechen", type: "speaking", prompt: "Present the main finding of a study you know — with cautious language ('vielleicht', 'dürfte', 'es scheint, dass ...').", modelAnswer: "Es scheint, dass ... Die Daten dürften darauf hindeuten, dass ...", taskType: "questions", timeLimit: 60 },
+    ],
+  },
+  {
+    id: "c1-u2",
+    level: "C1",
+    title: "Unit 2: Leading Discussions & Negotiations",
+    description: "Chair meetings, negotiate, and use diplomatic language.",
+    objective: "You can chair a discussion and negotiate professionally with diplomatic wording.",
+    recycles: ["Konjunktiv II", "hedging", "formal register"],
+    order: 2,
+    unlockThreshold: 60,
+    exercises: [
+      { id: "c1u2-h1", skill: "hoeren", type: "mcq", prompt: "How does the chairperson propose to proceed?", options: ["Park the topic and return later", "Vote immediately", "Postpone the meeting"], answer: "Park the topic and return later", audioText: "Ich schlage vor, dass wir dieses Thema vertagen und in der nächsten Runde erneut aufgreifen, sofern die Zeit es zulässt.", transcript: "Ich schlage vor, dass wir dieses Thema vertagen und in der nächsten Runde erneut aufgreifen, sofern die Zeit es zulässt." },
+      { id: "c1u2-h2", skill: "hoeren", type: "truefalse", prompt: "The negotiator rejects the offer outright.", options: ["True", "False"], answer: "False", audioText: "Das Angebot ist grundsätzlich interessant, allerdings wären wir bei der Laufzeit für Verhandlungen offen.", transcript: "Das Angebot ist grundsätzlich interessant, allerdings wären wir bei der Laufzeit für Verhandlungen offen." },
+      { id: "c1u2-r1", skill: "lesen", type: "mcq", prompt: "Which phrase hedges criticism most diplomatically?", options: ["Das ließe sich sicher noch optimieren", "Das ist schlecht", "Das vergisst alles Wichtige"], answer: "Das ließe sich sicher noch optimieren", vocab: [{ word: "das Einverständnis", definition: "the consent" }, { word: "vertagen", definition: "to adjourn/postpone" }, { word: "die Laufzeit", definition: "the term/duration (of a contract)" }] },
+      { id: "c1u2-r2", skill: "lesen", type: "matching", prompt: "Match the negotiation terms.", matchingPairs: [{ left: "das Zugeständnis", right: "concession" }, { left: "die Frist", right: "deadline" }, { left: "der Kompromiss", right: "compromise" }] },
+      { id: "c1u2-s1", skill: "schreiben", type: "writing", prompt: "Write a diplomatic email declining a proposal while keeping the door open (5 sentences).", modelAnswer: "Sehr geehrte Frau Richter, vielen Dank für Ihr Angebot. Grundsätzlich sind wir an einer Zusammenarbeit interessiert. Zum jetzigen Zeitpunkt können wir die Konditionen jedoch nicht vollumfänglich unterstützen. Wir wären bereit, über eine angepasste Laufzeit zu sprechen. Wir freuen uns auf Ihren Gegenentwurf. Mit freundlichen Grüßen" },
+      { id: "c1u2-sp1", skill: "sprechen", type: "speaking", prompt: "Role-play: negotiate a deadline extension without losing goodwill.", modelAnswer: "Ich würde vorschlagen ... Wären Sie damit einverstanden, dass ...?", taskType: "roleplay" },
+    ],
+  },
+  {
+    id: "c1-u3",
+    level: "C1",
+    title: "Unit 3: Abstract Topics & Society",
+    description: "Debate big-picture topics: ethics, technology, identity.",
+    objective: "You can argue abstract positions with precision and nuance.",
+    recycles: ["participle clauses", "idioms", "argumentation"],
+    order: 3,
+    unlockThreshold: 60,
+    exercises: [
+      { id: "c1u3-h1", skill: "hoeren", type: "mcq", prompt: "What is the speaker's core thesis?", options: ["Technology changes how we form identity", "Technology destroys communities", "Identity is fixed"], answer: "Technology changes how we form identity", audioText: "Meine These lautet: Technologie verändert nicht nur unsere Gewohnheiten, sondern die Art, wie wir Identität überhaupt aushandeln.", transcript: "Meine These lautet: Technologie verändert nicht nur unsere Gewohnheiten, sondern die Art, wie wir Identität überhaupt aushandeln." },
+      { id: "c1u3-r1", skill: "lesen", type: "mcq", prompt: "What does 'den Spagat zwischen X und Y schaffen' mean?", options: ["To balance two conflicting demands", "To fail a challenge", "To avoid a topic"], answer: "To balance two conflicting demands", vocab: [{ word: "der Spagat", definition: "the balancing act (figurative)" }, { word: "die Ethik", definition: "ethics" }, { word: "aushandeln", definition: "to negotiate" }] },
+      { id: "c1u3-r2", skill: "lesen", type: "open", prompt: "Finish the argument: 'Künstliche Intelligenz stellt die Bildung vor neue Fragen, denn ...' (2 sentences).", modelAnswer: "Künstliche Intelligenz stellt die Bildung vor neue Fragen, denn sie verändert, welche Kompetenzen gefragt sind. Dennoch bleibt die Kernaufgabe bestehen: Menschen zu denken lehren." },
+      { id: "c1u3-s1", skill: "schreiben", type: "writing", prompt: "Write a short essay introduction (5 sentences) on 'Künstliche Intelligenz und Verantwortung' with a clear thesis.", modelAnswer: "Kaum ein Thema bewegt die Gesellschaft derzeit so sehr wie künstliche Intelligenz. Einerseits verspricht sie Fortschritt in Medizin und Wissenschaft. Andererseits entstehen neue Fragen nach Haftung und Verantwortung. Die zentrale Herausforderung besteht darin, Innovation und Kontrolle in Einklang zu bringen. Genau an diesem Punkt setzt die vorliegende Betrachtung an." },
+      { id: "c1u3-sp1", skill: "sprechen", type: "speaking", prompt: "Debate: Should social media platforms be responsible for the content they amplify? Argue both sides briefly, then take a position.", modelAnswer: "Einerseits ... andererseits ... Ich plädiere dafür, dass ...", taskType: "questions", timeLimit: 60 },
+    ],
+  },
+// C2 units
+  {
+    id: "c2-u1",
+    level: "C2",
+    title: "Unit 1: Nuance, Style & Register",
+    description: "Recognise irony, tone, and register shifts in authentic texts.",
+    objective: "You can analyse tone, irony, and register and use them deliberately.",
+    recycles: ["register", "stylistics", "idioms"],
+    order: 1,
+    unlockThreshold: 0,
+    exercises: [
+      { id: "c2u1-h1", skill: "hoeren", type: "mcq", prompt: "Is the speaker being literal?", options: ["No — ironic understatement", "Yes — literal", "Yes — angry"], answer: "No — ironic understatement", audioText: "Na großartig, die Bahn hat mal wieder pünktlich entschieden, ein anderes Gleis zu nehmen. Herrlich, diese Flexibilität.", transcript: "Na großartig, die Bahn hat mal wieder pünktlich entschieden, ein anderes Gleis zu nehmen. Herrlich, diese Flexibilität." },
+      { id: "c2u1-r1", skill: "lesen", type: "mcq", prompt: "Which sentence is most formal (highest register)?", options: ["Hiermit teilen wir Ihnen mit, dass ...", "Wir sagen dir mal Bescheid", "Kurz und knapp: nein"], answer: "Hiermit teilen wir Ihnen mit, dass ...", vocab: [{ word: "das Register", definition: "the register (style level)" }, { word: "die Ironie", definition: "irony" }, { word: "die Understatement", definition: "understatement (rare, from English)" }] },
+      { id: "c2u1-r2", skill: "lesen", type: "truefalse", prompt: "The sentence 'Das ging ja ins Auge' idiomatically means a plan succeeded.", options: ["True", "False"], answer: "False" },
+      { id: "c2u1-s1", skill: "schreiben", type: "writing", prompt: "Write the same news in three registers: formal, neutral, colloquial (3 short paragraphs).", modelAnswer: "Formal: Die Behörde hat eine Verschiebung der Frist bekannt gegeben. Neutral: Die Frist wurde verschoben. Colloquial: Die Frist ist mal wieder nach hinten gerutscht." },
+      { id: "c2u1-sp1", skill: "sprechen", type: "speaking", prompt: "Tell a short anecdote with deliberate understatement, then explain the effect.", modelAnswer: "Naja, es war ... nicht ganz optimal. Ironischerweise ...", taskType: "free" },
+    ],
+  },
+  {
+    id: "c2-u2",
+    level: "C2",
+    title: "Unit 2: Diplomacy & High-Stakes Communication",
+    description: "Negotiate, mediate, and communicate under pressure.",
+    objective: "You can mediate conflicts and communicate with near-native precision.",
+    recycles: ["Konjunktiv II", "hedging", "advanced connectors"],
+    order: 2,
+    unlockThreshold: 60,
+    exercises: [
+      { id: "c2u2-h1", skill: "hoeren", type: "mcq", prompt: "What does the mediator actually propose?", options: ["A phased compromise", "Full acceptance", "Walking away"], answer: "A phased compromise", audioText: "Mein Vorschlag wäre, dass wir zunächst eine Pilotphase vereinbaren — weder Vollzug noch Verzicht, sondern ein befristetes Experiment.", transcript: "Mein Vorschlag wäre, dass wir zunächst eine Pilotphase vereinbaren — weder Vollzug noch Verzicht, sondern ein befristetes Experiment." },
+      { id: "c2u2-r1", skill: "lesen", type: "mcq", prompt: "What does 'das Kind mit dem Bade ausschütten' mean?", options: ["To throw out something valuable along with the bad", "To wash something carefully", "To make a small problem big"], answer: "To throw out something valuable along with the bad", vocab: [{ word: "das Kind mit dem Bade ausschütten", definition: "to overreach and lose something good while fixing something bad" }, { word: "befristet", definition: "time-limited" }, { word: "der Vollzug", definition: "full implementation" }] },
+      { id: "c2u2-r2", skill: "lesen", type: "open", prompt: "Soften this refusal into diplomatic C2 register: 'Nein, das machen wir nicht.'", modelAnswer: "Dem kommen wir derzeit leider nicht nach, da … Wir prüfen jedoch gern alternative Wege." },
+      { id: "c2u2-s1", skill: "schreiben", type: "writing", prompt: "Write a mediation summary for two conflicting parties (6 sentences) — neutral, solution-oriented, no blame.", modelAnswer: "Zusammenfassung: Beide Seiten zielen auf einen reibungslosen Ablauf, unterscheiden sich jedoch in der Prioritätensetzung. Team A wünscht schnelle Ergebnisse, Team B betont Qualitätssicherung. Als nächster Schritt wird eine Pilotphase von vier Wochen vorgeschlagen. Innerhalb dieser Phase gelten definierte Qualitätskriterien. Eine gemeinsame Evaluation am Ende der Phase entscheidet über das weitere Vorgehen. Beide Seiten haben dem Vorgehen grundsätzlich zugestimmt." },
+      { id: "c2u2-sp1", skill: "sprechen", type: "speaking", prompt: "Mediate a mock conflict: two colleagues disagree about working from home. Summarise both positions, propose a compromise.", modelAnswer: "Wenn ich Sie beide richtig verstehe, geht es eigentlich um ... Ich würde vorschlagen, dass ...", taskType: "roleplay" },
+    ],
+  },
 ];
 
 export const LEVELS = [
@@ -360,6 +449,8 @@ export const LEVELS = [
   { code: "A2", title: "A2 — Elementary", description: "Daily life, past tense, simple opinions." },
   { code: "B1", title: "B1 — Intermediate", description: "Work, travel, opinions, and more complex grammar." },
   { code: "B2", title: "B2 — Upper Intermediate", description: "Professional and academic communication." },
+  { code: "C1", title: "C1 — Advanced", description: "Academic, professional, and nuanced argumentation." },
+  { code: "C2", title: "C2 — Mastery", description: "Near-native nuance, style, and register." },
 ];
 
 export const SKILLS: { code: Skill; title: string; icon: string }[] = [

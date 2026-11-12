@@ -30,7 +30,7 @@ export default function VocabularyClient({ items }: { items: Array<{ word: strin
           aria-label="Search vocabulary"
         />
         <div className="flex gap-1.5">
-          {["all", "A1", "A2", "B1", "B2"].map((l) => (
+          {["all", "A1", "A2", "B1", "B2", "C1", "C2"].map((l) => (
             <button
               key={l}
               onClick={() => setLevel(l)}
