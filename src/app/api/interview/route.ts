@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { env } from "@/lib/env";
 
 export async function POST(req: NextRequest) {
   const { level, scenarioTitle, systemPrompt, memory, messages } = await req.json();
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const apiKey = env.OPENAI_API_KEY;
+  const baseUrl = env.OPENAI_BASE_URL;
+  const model = env.OPENAI_MODEL;
 
   if (!apiKey) {
     // Fallback canned response so the UI works without keys
