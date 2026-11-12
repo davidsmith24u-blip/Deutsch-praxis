@@ -27,6 +27,8 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [matchAnswers, setMatchAnswers] = useState<Record<string, string>>({});
   const [speechScore, setSpeechScore] = useState<SpeechScore | null>(null);
+  const [writingScore, setWritingScore] = useState<number | null>(null);
+  const [correction, setCorrection] = useState<string | null>(null);
   const recRef = useRef<any>(null);
 
   const persistProgress = async (exerciseId: string, completed: boolean, score: number) => {
@@ -92,15 +94,18 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
     setLoading(true);
     setFeedback(null);
     setModelAnswer(null);
+    setWritingScore(null);
     try {
       const res = await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skill: "schreiben", level: unit.level, task: ex.prompt, answer }),
+        body: JSON.stringify({ skill: "schreiben", level: unit.level, task: ex.prompt, answer, persist: true }),
       });
       const data = await res.json();
       setFeedback(data.feedback);
+      setCorrection(data.correction);
       setModelAnswer(data.modelAnswer);
+      if (typeof data.score === "number") setWritingScore(data.score);
       persistProgress(ex.id, true, 80);
     } catch (e) {
       setFeedback("Request failed");
@@ -161,6 +166,8 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
     setFeedback(null);
     setModelAnswer(null);
     setSpeechScore(null);
+    setWritingScore(null);
+    setCorrection(null);
     if (index < exercises.length - 1) setIndex(index + 1);
     else router.push(`/units/${unitId}`);
   };
@@ -294,6 +301,25 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
             <div className={`flex items-center gap-2 text-sm ${checked ? "text-green-600" : "text-red-600"}`}>
               {checked ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
               {checked ? "Correct!" : `Answer: ${ex.answer}`}
+            </div>
+          )}
+
+          {writingScore !== null && (
+            <div className="rounded-md border bg-card p-3 text-sm space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="font-medium">Task score</p>
+                <span className={`text-lg font-bold ${writingScore >= 70 ? "text-emerald-600 dark:text-emerald-400" : writingScore >= 50 ? "text-amber-600 dark:text-amber-400" : "text-red-600 dark:text-red-400"}`}>
+                  {writingScore}/100
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">Saved to your Writing Coach history — watch your score trend improve.</p>
+            </div>
+          )}
+
+          {correction && (
+            <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm dark:border-emerald-800 dark:bg-emerald-950/40">
+              <p className="font-medium text-emerald-800 dark:text-emerald-300">Corrected version</p>
+              <p>{correction}</p>
             </div>
           )}
 

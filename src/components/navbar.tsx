@@ -47,6 +47,7 @@ export function Navbar() {
         <nav className="hidden items-center gap-6 text-sm md:flex">
           <Link href="/curriculum" className="hover:text-primary">Curriculum</Link>
           <Link href="/units" className="hover:text-primary">{t("units")}</Link>
+          <Link href="/street" className="hover:text-primary">Street</Link>
           <Link href="/exam" className="hover:text-primary">{t("exam")}</Link>
           <Link href="/review" className="hover:text-primary">{t("review")}</Link>
           <Link href="/interview" className="hover:text-primary">Voice Practice</Link>
