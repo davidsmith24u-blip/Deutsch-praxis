@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const { level, scenarioTitle, systemPrompt, messages } = await req.json();
+  const { level, scenarioTitle, systemPrompt, memory, messages } = await req.json();
 
   const apiKey = process.env.OPENAI_API_KEY;
   const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
@@ -14,16 +14,19 @@ export async function POST(req: NextRequest) {
       correction: null,
       feedback: "Demo mode: configure OPENAI_API_KEY to enable AI.",
       translation: "Hello! I am your conversation partner.",
+      mistakes: [],
     });
   }
 
   const system = `You are a German conversation partner for CEFR level ${level}.
 Scenario: ${scenarioTitle}. ${systemPrompt}
+${memory ? `User memory: ${memory}` : ""}
 Rules:
 - Reply primarily in German appropriate to the level.
 - Keep replies concise (1-3 sentences) and ask a follow-up question.
 - Gently correct the user's last message if needed.
-- Return ONLY a JSON object with keys: reply (string, German), correction (string or null), feedback (string or null), translation (string or null English translation of reply).`;
+- Deliberately create opportunities to practice the user's weak points when possible.
+- Return ONLY a JSON object with keys: reply (string, German), correction (string or null), feedback (string or null), translation (string or null English translation of reply), mistakes (array of objects {grammar_point, example, correction} for structured errors in the user's last message; empty array if none).`;
 
   const payload = {
     model,
@@ -61,6 +64,7 @@ Rules:
       correction: parsed.correction ?? null,
       feedback: parsed.feedback ?? null,
       translation: parsed.translation ?? null,
+      mistakes: Array.isArray(parsed.mistakes) ? parsed.mistakes : [],
     });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message ?? "unknown" }, { status: 500 });

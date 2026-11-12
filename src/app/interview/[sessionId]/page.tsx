@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { getScenario } from "@/data/curriculum";
+import { getRealScenario as getScenario } from "@/data/realScenarios";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +17,7 @@ interface Msg {
   correction?: string | null;
   feedback?: string | null;
   translation?: string | null;
+  mistakes?: { grammar_point: string; example: string; correction: string }[];
 }
 
 function InterviewSession() {
@@ -33,6 +34,7 @@ function InterviewSession() {
   const [interim, setInterim] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [memoryContext, setMemoryContext] = useState("");
   const recognizerRef = useRef<any>(null);
   const startedRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -49,6 +51,26 @@ function InterviewSession() {
   }, [scenario]);
 
   useEffect(() => {
+    const loadMemory = async () => {
+      if (sessionId.startsWith("local-")) return;
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: mem } = await supabase.from("user_memory").select("*").eq("user_id", user.id).single();
+      const { data: errs } = await supabase.from("mistake_patterns").select("grammar_point,count").eq("user_id", user.id).order("count", { ascending: false }).limit(3);
+      let ctx = "";
+      if (mem) {
+        if (Array.isArray(mem.common_errors) && mem.common_errors.length) ctx += `Recurring mistakes: ${mem.common_errors.join(", ")}. `;
+        if (Array.isArray(mem.previous_scenarios) && mem.previous_scenarios.length) ctx += `Previously practiced scenarios: ${mem.previous_scenarios.join(", ")}. `;
+        if (mem.user_notes) ctx += `Notes: ${mem.user_notes}. `;
+      }
+      if (errs && errs.length) ctx += `Top weak points to practice: ${errs.map((e: any) => e.grammar_point).join(", ")}. `;
+      setMemoryContext(ctx);
+    };
+    loadMemory();
+  }, [sessionId]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, interim]);
 
@@ -56,6 +78,38 @@ function InterviewSession() {
     if (sessionId.startsWith("local-")) return;
     const supabase = createClient();
     await supabase.from("interview_messages").insert({ session_id: sessionId, role, content, correction });
+  };
+
+  const persistMistakes = async (mistakes: { grammar_point: string; example: string; correction: string }[]) => {
+    if (sessionId.startsWith("local-") || !mistakes?.length) return;
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    for (const m of mistakes) {
+      const { data: existing } = await supabase
+        .from("mistake_patterns")
+        .select("id,count")
+        .eq("user_id", user.id)
+        .eq("grammar_point", m.grammar_point)
+        .maybeSingle();
+      if (existing) {
+        await supabase
+          .from("mistake_patterns")
+          .update({ count: (existing.count ?? 0) + 1, example: m.example, correction: m.correction, last_seen: new Date().toISOString() })
+          .eq("id", existing.id);
+      } else {
+        await supabase.from("mistake_patterns").insert({
+          user_id: user.id,
+          grammar_point: m.grammar_point,
+          example: m.example,
+          correction: m.correction,
+        });
+      }
+    }
+    const { data: mem } = await supabase.from("user_memory").select("common_errors").eq("user_id", user.id).single();
+    const current: string[] = Array.isArray(mem?.common_errors) ? mem.common_errors : [];
+    const merged = Array.from(new Set([...current, ...mistakes.map((m) => m.grammar_point)]));
+    await supabase.from("user_memory").upsert({ user_id: user.id, common_errors: merged, updated_at: new Date().toISOString() });
   };
 
   const sendUserMessage = async (text: string) => {
@@ -77,6 +131,7 @@ function InterviewSession() {
           level,
           scenarioTitle: scenario?.title ?? "Conversation",
           systemPrompt: scenario?.systemPrompt ?? "",
+          memory: memoryContext,
           messages: history,
         }),
       });
@@ -88,9 +143,11 @@ function InterviewSession() {
         correction: data.correction,
         feedback: data.feedback,
         translation: data.translation,
+        mistakes: data.mistakes ?? [],
       };
       setMessages((prev) => [...prev, assistantMsg]);
       await persistMessage("assistant", data.reply, data.correction);
+      if (Array.isArray(data.mistakes)) await persistMistakes(data.mistakes);
       speak(data.reply);
     } catch (e: any) {
       setError(e?.message ?? "Request failed");
@@ -131,8 +188,41 @@ function InterviewSession() {
   const endSession = async () => {
     stopSpeaking();
     if (!sessionId.startsWith("local-")) {
-      const supabase = createClient();
-      await supabase.from("interview_sessions").update({ ended_at: new Date().toISOString() }).eq("id", sessionId);
+      try {
+        const res = await fetch("/api/summary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            level,
+            scenarioTitle: scenario?.title ?? "Conversation",
+            messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          }),
+        });
+        const data = await res.json();
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from("conversation_summaries").insert({
+            session_id: sessionId,
+            user_id: user.id,
+            scenario_key: scenarioId,
+            summary: data.summary ?? "",
+            mistakes: data.mistakes ?? [],
+          });
+          const { data: mem } = await supabase.from("user_memory").select("previous_scenarios").eq("user_id", user.id).single();
+          const prev: string[] = Array.isArray(mem?.previous_scenarios) ? mem.previous_scenarios : [];
+          if (!prev.includes(scenarioId)) {
+            await supabase.from("user_memory").upsert({
+              user_id: user.id,
+              previous_scenarios: [...prev, scenarioId],
+              updated_at: new Date().toISOString(),
+            });
+          }
+        }
+        await supabase.from("interview_sessions").update({ ended_at: new Date().toISOString(), feedback: { summary: data.summary } }).eq("id", sessionId);
+      } catch {
+        // ignore
+      }
     }
     window.location.href = "/interview";
   };

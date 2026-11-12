@@ -111,6 +111,56 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- Memory, mistakes, summaries
+create table if not exists public.user_memory (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  common_errors jsonb not null default '[]'::jsonb,
+  previous_scenarios text[] not null default '{}',
+  user_notes text,
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.mistake_patterns (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  grammar_point text not null,
+  example text,
+  correction text,
+  count int not null default 1,
+  last_seen timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.conversation_summaries (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid references public.interview_sessions(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  scenario_key text,
+  summary text,
+  mistakes jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+-- RLS
+alter table public.user_memory enable row level security;
+alter table public.mistake_patterns enable row level security;
+alter table public.conversation_summaries enable row level security;
+
+create policy "user_memory self" on public.user_memory for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "mistake_patterns self" on public.mistake_patterns for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "conversation_summaries self" on public.conversation_summaries for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Ensure user_memory row on signup
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email) values (new.id, new.email);
+  insert into public.user_progress (user_id) values (new.id);
+  insert into public.user_memory (user_id) values (new.id);
+  return new;
+end;
+$$ language plpgsql security definer;
+
 -- Seed levels
 insert into public.levels (code, title, description, "order") values
   ('A1','A1 — Beginner','First steps: greetings, personal info, basic verbs.',1),

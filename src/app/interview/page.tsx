@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { LEVELS, scenariosByLevel } from "@/data/curriculum";
+import { LEVELS } from "@/data/curriculum";
+import { REAL_SCENARIOS, realScenariosByLevel } from "@/data/realScenarios";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,12 +66,12 @@ export default function InterviewPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {scenariosByLevel(level as any).map((s) => (
+        {realScenariosByLevel(level).map((s) => (
           <Card key={s.id} className="flex flex-col">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{s.title}</CardTitle>
-                <Badge>{s.level}</Badge>
+                <Badge>{s.levels.join("/")}</Badge>
               </div>
               <CardDescription>{s.description}</CardDescription>
             </CardHeader>
@@ -78,7 +79,7 @@ export default function InterviewPage() {
               <Button
                 className="w-full"
                 disabled={starting === s.id}
-                onClick={() => start(s.id, s.level)}
+                onClick={() => start(s.id, level)}
               >
                 {starting === s.id ? "Starting..." : "Start practice"}
               </Button>
