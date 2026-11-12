@@ -14,10 +14,16 @@ export default function ExamPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [timeLeft, setTimeLeft] = useState(300);
   const [finished, setFinished] = useState(false);
+  const [levelFilter, setLevelFilter] = useState<"Mixed" | "A1" | "A2" | "B1" | "B2">("Mixed");
 
-  const start = () => {
-    const pool = UNITS.flatMap((u) => u.exercises).filter((e) => e.type === "mcq" || e.type === "truefalse" || e.type === "gapfill");
-    const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, 8);
+  const poolFor = (lvl: string) =>
+    UNITS.filter((u) => lvl === "Mixed" || u.level === lvl)
+      .flatMap((u) => u.exercises)
+      .filter((e) => e.type === "mcq" || e.type === "truefalse" || e.type === "gapfill");
+
+  const start = (lvl: string = levelFilter) => {
+    const pool = poolFor(lvl);
+    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 8);
     setQuestions(shuffled);
     setIndex(0);
     setAnswers({});
@@ -38,19 +44,42 @@ export default function ExamPage() {
   }, [started, finished]);
 
   if (!started) {
+    const levelOptions: Array<"Mixed" | "A1" | "A2" | "B1" | "B2"> = ["Mixed", "A1", "A2", "B1", "B2"];
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 space-y-8">
         <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-10 text-center text-white shadow-lg">
           <h1 className="text-3xl font-bold">Goethe-style Exam Mode</h1>
           <p className="mt-2 text-white/90">Timed practice with realistic task formats. 5 minutes, 8 questions.</p>
         </div>
+        <div className="space-y-3">
+          <h2 className="text-center text-sm font-medium text-muted-foreground">Choose your level</h2>
+          <div className="flex flex-wrap justify-center gap-2">
+            {levelOptions.map((l) => {
+              const count = poolFor(l).length;
+              return (
+                <button
+                  key={l}
+                  onClick={() => setLevelFilter(l)}
+                  aria-pressed={levelFilter === l}
+                  className={`inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium transition-colors ${
+                    levelFilter === l
+                      ? "border-transparent bg-primary text-primary-foreground"
+                      : "bg-background text-foreground hover:bg-accent"
+                  } ${count === 0 ? "cursor-not-allowed opacity-40" : ""}`}
+                >
+                  {l} <span className="ml-1.5 text-xs opacity-70">({count})</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <div className="grid gap-4 sm:grid-cols-3 text-center">
           <Card><CardContent className="pt-6"><p className="text-2xl font-bold">8</p><p className="text-sm text-muted-foreground">Questions</p></CardContent></Card>
           <Card><CardContent className="pt-6"><p className="text-2xl font-bold">5:00</p><p className="text-sm text-muted-foreground">Time limit</p></CardContent></Card>
-          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">A1–B2</p><p className="text-sm text-muted-foreground">Mixed levels</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{levelFilter}</p><p className="text-sm text-muted-foreground">Level</p></CardContent></Card>
         </div>
         <div className="text-center">
-          <Button size="lg" onClick={start}>Start exam</Button>
+          <Button size="lg" onClick={() => start(levelFilter)} disabled={poolFor(levelFilter).length === 0}>Start exam</Button>
         </div>
       </div>
     );
@@ -80,7 +109,7 @@ export default function ExamPage() {
           ))}
         </div>
         <div className="text-center">
-          <Button onClick={start}>Try again</Button>
+          <Button onClick={() => start()}>Try again</Button>
         </div>
       </div>
     );

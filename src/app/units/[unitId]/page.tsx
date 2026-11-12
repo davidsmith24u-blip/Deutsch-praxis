@@ -1,12 +1,15 @@
 import { notFound } from "next/navigation";
-import { getUnit, SKILLS } from "@/data/units";
+import { getUnit, SKILLS, type Unit } from "@/data/units";
+import { findUnitById } from "@/lib/custom-units";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
+export const dynamic = "force-dynamic";
+
 export default async function UnitPage({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
-  const unit = getUnit(unitId);
+  const unit: Unit | null = getUnit(unitId) ?? (await findUnitById(unitId));
   if (!unit) notFound();
 
   return (

@@ -1,9 +1,14 @@
-import { LEVELS, unitsByLevel, SKILLS } from "@/data/units";
+import { LEVELS, UNITS, SKILLS } from "@/data/units";
+import { fetchCustomUnits } from "@/lib/custom-units";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
-export default function UnitsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function UnitsPage() {
+  const custom = await fetchCustomUnits();
+  const all = [...UNITS, ...custom];
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 space-y-10">
       <div className="space-y-2">
@@ -13,7 +18,7 @@ export default function UnitsPage() {
         </p>
       </div>
       {LEVELS.map((lvl) => {
-        const units = unitsByLevel(lvl.code as any);
+        const units = all.filter((u) => u.level === lvl.code).sort((a, b) => a.order - b.order);
         return (
           <section key={lvl.code} className="space-y-4">
             <div className="flex items-center gap-3">

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getUnit, exercisesBySkill } from "@/data/units";
+import { getUnit, exercisesBySkill, type Unit } from "@/data/units";
 import { AudioPlayer } from "@/components/audio-player";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, Mic, MicOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function SkillPractice({ unitId, skill }: { unitId: string; skill: string }) {
+export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitId: string; skill: string; unit?: Unit | null }) {
   const router = useRouter();
-  const unit = getUnit(unitId);
+  const unit = unitProp ?? getUnit(unitId);
   const exercises = unit ? exercisesBySkill(unit, skill as any) : [];
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
