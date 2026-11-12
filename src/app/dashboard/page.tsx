@@ -26,9 +26,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back, {user.email}</p>
+      <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 text-white shadow-lg">
+        <h1 className="text-3xl font-bold">Willkommen zurück 👋</h1>
+        <p className="mt-1 text-white/90">{user.email}</p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <span className="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-sm font-semibold backdrop-blur">Level {level}</span>
+          <span className="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-sm font-semibold backdrop-blur">{progress?.xp ?? 0} XP</span>
+          <span className="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-sm font-semibold backdrop-blur">{progress?.streak ?? 0}-day streak 🔥</span>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -93,7 +98,9 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Link href="/curriculum" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Browse curriculum</Link>
+            <Link href="/units" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Units</Link>
             <Link href="/interview" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Start interview</Link>
+            <Link href="/exam" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Exam mode</Link>
             <Link href="/progress" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">View progress</Link>
           </CardContent>
         </Card>

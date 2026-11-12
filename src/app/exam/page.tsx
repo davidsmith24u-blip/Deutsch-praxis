@@ -39,21 +39,49 @@ export default function ExamPage() {
 
   if (!started) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-6">
-        <h1 className="text-3xl font-bold">Goethe-style Exam Mode</h1>
-        <p className="text-muted-foreground">Timed practice with realistic task formats. 5 minutes, 8 questions.</p>
-        <Button size="lg" onClick={start}>Start exam</Button>
+      <div className="mx-auto max-w-2xl px-4 py-12 space-y-8">
+        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-10 text-center text-white shadow-lg">
+          <h1 className="text-3xl font-bold">Goethe-style Exam Mode</h1>
+          <p className="mt-2 text-white/90">Timed practice with realistic task formats. 5 minutes, 8 questions.</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3 text-center">
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">8</p><p className="text-sm text-muted-foreground">Questions</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">5:00</p><p className="text-sm text-muted-foreground">Time limit</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">A1–B2</p><p className="text-sm text-muted-foreground">Mixed levels</p></CardContent></Card>
+        </div>
+        <div className="text-center">
+          <Button size="lg" onClick={start}>Start exam</Button>
+        </div>
       </div>
     );
   }
 
   if (finished) {
-    const score = questions.reduce((acc, q, i) => acc + (answers[i]?.trim().toLowerCase() === (q.answer ?? "").trim().toLowerCase() ? 1 : 0), 0);
+    const results = questions.map((q, i) => ({ q, given: answers[i] ?? "", ok: (answers[i] ?? "").trim().toLowerCase() === (q.answer ?? "").trim().toLowerCase() }));
+    const score = results.filter((r) => r.ok).length;
+    const pct = questions.length ? Math.round((score / questions.length) * 100) : 0;
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-6">
-        <h1 className="text-3xl font-bold">Exam finished</h1>
-        <p className="text-xl">Score: {score} / {questions.length}</p>
-        <Button onClick={start}>Retry</Button>
+      <div className="mx-auto max-w-2xl px-4 py-12 space-y-8">
+        <div className={`overflow-hidden rounded-3xl p-10 text-center text-white shadow-lg ${pct >= 60 ? "bg-gradient-to-br from-emerald-500 to-teal-600" : "bg-gradient-to-br from-amber-500 to-orange-600"}`}>
+          <p className="text-5xl font-bold">{score} / {questions.length}</p>
+          <p className="mt-2 text-white/90">{pct >= 60 ? "Passed — gut gemacht!" : "Keep practising — you'll get there."}</p>
+        </div>
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold">Review</h2>
+          {results.map((r, i) => (
+            <Card key={i}>
+              <CardContent className="space-y-1 pt-4">
+                <p className="text-sm font-medium">{r.q.prompt}</p>
+                <p className={r.ok ? "text-sm text-emerald-600 dark:text-emerald-400" : "text-sm text-red-600 dark:text-red-400"}>
+                  Your answer: {r.given || "—"}{!r.ok && r.q.answer ? ` · Correct: ${r.q.answer}` : ""}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="text-center">
+          <Button onClick={start}>Try again</Button>
+        </div>
       </div>
     );
   }
