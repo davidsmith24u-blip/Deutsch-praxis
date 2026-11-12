@@ -442,6 +442,24 @@ export const UNITS: Unit[] = [
       { id: "c2u2-sp1", skill: "sprechen", type: "speaking", prompt: "Mediate a mock conflict: two colleagues disagree about working from home. Summarise both positions, propose a compromise.", modelAnswer: "Wenn ich Sie beide richtig verstehe, geht es eigentlich um ... Ich würde vorschlagen, dass ...", taskType: "roleplay" },
     ],
   },
+  {
+    id: "c2-u3",
+    level: "C2",
+    title: "Unit 3: Literature & Media Analysis",
+    description: "Interpret literary excerpts, metaphors, and media commentary.",
+    objective: "You can interpret literary and media texts and discuss their style and effect.",
+    recycles: ["metaphors", "stylistics", "interpretation"],
+    order: 3,
+    unlockThreshold: 60,
+    exercises: [
+      { id: "c2u3-h1", skill: "hoeren", type: "mcq", prompt: "What impression does the speaker deliberately create?", options: ["Admiration with a hint of scepticism", "Pure admiration", "Open hostility"], answer: "Admiration with a hint of scepticism", audioText: "Man muss schon bewundern, wie konsequent diese Regierung ihre Ziele verfolgt — soweit man sie denn erkennen kann.", transcript: "Man muss schon bewundern, wie konsequent diese Regierung ihre Ziele verfolgt — soweit man sie denn erkennen kann." },
+      { id: "c2u3-r1", skill: "lesen", type: "mcq", prompt: "In the sentence 'Die Stadt erwachte aus ihrem Schlaf der Schadenfreude', what is 'Schadenfreude' doing stylistically?", options: ["Personifying the city with a critical metaphor", "Describing weather", "A simple typo for Schadensersatz"], answer: "Personifying the city with a critical metaphor", vocab: [{ word: "die Schadenfreude", definition: "pleasure at another's misfortune (untranslatable classic)" }, { word: "die Metapher", definition: "the metaphor" }, { word: "die Personifizierung", definition: "personification" }] },
+      { id: "c2u3-r2", skill: "lesen", type: "truefalse", prompt: "Literary German often uses inverted word order for emphasis, e.g. 'Kaum hatte er gesprochen, da ...'", options: ["True", "False"], answer: "True" },
+      { id: "c2u3-r3", skill: "lesen", type: "open", prompt: "Interpret: 'Er trug sein Schweigen wie einen Mantel.' What does the metaphor suggest?", modelAnswer: "Er hat sein Schweigen bewusst und schützend getragen — es verdeckt ihn und ist zugleich Teil seiner Haltung." },
+      { id: "c2u3-s1", skill: "schreiben", type: "writing", prompt: "Write a short literary review (5 sentences): style, effect on the reader, one reservation.", modelAnswer: "Der Erzählung gelingt es, mit knappen Mitteln eine dichte Atmosphäre zu erzeugen. Die Sprache ist zurückhaltend, nahezu karg, und wirkt gerade dadurch umso eindringlicher. Besonders die Metaphern des Schweigens bleiben haften. Allerdings droht die Reduktion gelegentlich zur Distanz. Insgesamt ein Text, dem man sich kaum entziehen kann." },
+      { id: "c2u3-sp1", skill: "sprechen", type: "speaking", prompt: "Recommend a German book or film to a friend — summarise it without spoiling, and explain why it moved you.", modelAnswer: "Das Werk handelt von ... Beeindruckend finde ich, wie ... Ich würde es empfehlen, weil ...", taskType: "free" },
+    ],
+  },
 ];
 
 export const LEVELS = [
