@@ -1,0 +1,12 @@
+{
+  "name": "DeutschPraxis",
+  "short_name": "DeutschPraxis",
+  "description": "German learning platform A1-B2 with four skills practice.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#171717",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

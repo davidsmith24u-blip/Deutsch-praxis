@@ -31,6 +31,7 @@ export function Navbar() {
         </Link>
         <nav className="hidden items-center gap-6 text-sm md:flex">
           <Link href="/curriculum" className="hover:text-primary">Curriculum</Link>
+          <Link href="/units" className="hover:text-primary">Units</Link>
           <Link href="/interview" className="hover:text-primary">Voice Practice</Link>
           <Link href="/mistakes" className="hover:text-primary">Mistakes</Link>
           <Link href="/dashboard" className="hover:text-primary">Dashboard</Link>
