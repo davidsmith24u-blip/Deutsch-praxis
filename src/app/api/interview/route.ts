@@ -1,0 +1,68 @@
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+  const { level, scenarioTitle, systemPrompt, messages } = await req.json();
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
+  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+
+  if (!apiKey) {
+    // Fallback canned response so the UI works without keys
+    return NextResponse.json({
+      reply: "Hallo! Ich bin dein Gesprächspartner. (Set OPENAI_API_KEY for real AI responses.)",
+      correction: null,
+      feedback: "Demo mode: configure OPENAI_API_KEY to enable AI.",
+      translation: "Hello! I am your conversation partner.",
+    });
+  }
+
+  const system = `You are a German conversation partner for CEFR level ${level}.
+Scenario: ${scenarioTitle}. ${systemPrompt}
+Rules:
+- Reply primarily in German appropriate to the level.
+- Keep replies concise (1-3 sentences) and ask a follow-up question.
+- Gently correct the user's last message if needed.
+- Return ONLY a JSON object with keys: reply (string, German), correction (string or null), feedback (string or null), translation (string or null English translation of reply).`;
+
+  const payload = {
+    model,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: system },
+      ...messages.map((m: any) => ({ role: m.role, content: m.content })),
+    ],
+    temperature: 0.7,
+  };
+
+  try {
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      return NextResponse.json({ error: text }, { status: 500 });
+    }
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content ?? "{}";
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      parsed = { reply: content };
+    }
+    return NextResponse.json({
+      reply: parsed.reply ?? "…",
+      correction: parsed.correction ?? null,
+      feedback: parsed.feedback ?? null,
+      translation: parsed.translation ?? null,
+    });
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message ?? "unknown" }, { status: 500 });
+  }
+}
