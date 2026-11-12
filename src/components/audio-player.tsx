@@ -71,13 +71,14 @@ export function AudioPlayer({ src, text, label }: AudioPlayerProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-md border p-3">
-      <Button size="sm" variant="outline" onClick={toggle}>
+      <Button size="sm" variant="outline" onClick={toggle} aria-pressed={playing} aria-label={playing ? "Pause audio" : "Play audio"}>
         {playing ? <Pause className="mr-1 h-4 w-4" /> : <Play className="mr-1 h-4 w-4" />}
         {playing ? "Pause" : "Play"}
       </Button>
-      <Button size="sm" variant="ghost" onClick={replay}>
+      <Button size="sm" variant="ghost" onClick={replay} aria-label="Replay audio">
         <RotateCcw className="mr-1 h-4 w-4" /> Replay
       </Button>
+      {playing && <span className="text-xs text-muted-foreground" role="status" aria-live="polite">Playing…</span>}
       <div className="flex items-center gap-1 text-sm">
         <span className="text-muted-foreground">Speed:</span>
         {[0.75, 1, 1.25].map((s) => (
