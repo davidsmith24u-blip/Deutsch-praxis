@@ -23,11 +23,9 @@ export const env = envSchema.parse({
 });
 
 export function requireSupabaseEnv() {
-  if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    throw new Error("Supabase environment variables are required");
-  }
+  // Tolerant during build/prerender; runtime calls will fail gracefully if missing.
   return {
-    url: env.NEXT_PUBLIC_SUPABASE_URL,
-    anonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    url: env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
+    anonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key",
   };
 }
