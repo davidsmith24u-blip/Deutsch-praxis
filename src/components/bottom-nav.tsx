@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, Mic, AlertTriangle, LayoutDashboard } from "lucide-react";
-
-const items = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/units", label: "Units", icon: BookOpen },
-  { href: "/interview", label: "Speak", icon: Mic },
-  { href: "/mistakes", label: "Mistakes", icon: AlertTriangle },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-];
+import { Home, BookOpen, Mic, Repeat, LayoutDashboard } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { t } = useI18n();
+  const items = [
+    { href: "/", label: t("home"), icon: Home },
+    { href: "/units", label: t("units"), icon: BookOpen },
+    { href: "/interview", label: t("speak"), icon: Mic },
+    { href: "/review", label: t("review"), icon: Repeat },
+    { href: "/dashboard", label: t("dashboard"), icon: LayoutDashboard },
+  ];
   return (
     <nav
       aria-label="Primary mobile navigation"

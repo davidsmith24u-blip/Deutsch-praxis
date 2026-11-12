@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { I18nProvider } from "@/lib/i18n";
 import { Navbar } from "@/components/navbar";
 import { PwaRegister } from "@/components/pwa-register";
 import { BottomNav } from "@/components/bottom-nav";
@@ -31,13 +32,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
-          <PwaRegister />
-          <Navbar />
-          <main className="flex-1 pb-20 md:pb-0">{children}</main>
-          <BottomNav />
-          <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} DeutschPraxis
-          </footer>
+          <I18nProvider>
+            <PwaRegister />
+            <Navbar />
+            <main className="flex-1 pb-20 md:pb-0">{children}</main>
+            <BottomNav />
+            <footer className="border-t py-6 text-center text-sm text-muted-foreground">
+              © {new Date().getFullYear()} DeutschPraxis
+            </footer>
+          </I18nProvider>
         </ThemeProvider>
       </body>
     </html>

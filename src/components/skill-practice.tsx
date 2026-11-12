@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, Mic, MicOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { scoreSpeech, type SpeechScore } from "@/lib/speech-score";
 
 export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitId: string; skill: string; unit?: Unit | null }) {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
   const [listening, setListening] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [matchAnswers, setMatchAnswers] = useState<Record<string, string>>({});
+  const [speechScore, setSpeechScore] = useState<SpeechScore | null>(null);
   const recRef = useRef<any>(null);
 
   const persistProgress = async (exerciseId: string, completed: boolean, score: number) => {
@@ -41,6 +43,12 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
         score,
         updated_at: new Date().toISOString(),
       });
+      // Streak + XP: +10 for completing an exercise correctly
+      fetch("/api/streak", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ xpGain: completed ? 10 : 2 }),
+      }).catch(() => {});
     } catch {
       // ignore
     }
@@ -105,6 +113,7 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
     setLoading(true);
     setFeedback(null);
     setModelAnswer(null);
+    setSpeechScore(null);
     try {
       const res = await fetch("/api/feedback", {
         method: "POST",
@@ -114,6 +123,7 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
       const data = await res.json();
       setFeedback(data.feedback);
       setModelAnswer(data.modelAnswer);
+      if (data.modelAnswer) setSpeechScore(scoreSpeech(text, data.modelAnswer));
       persistProgress(ex.id, true, 80);
     } catch {
       setFeedback("Request failed");
@@ -150,6 +160,7 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
     setChecked(null);
     setFeedback(null);
     setModelAnswer(null);
+    setSpeechScore(null);
     if (index < exercises.length - 1) setIndex(index + 1);
     else router.push(`/units/${unitId}`);
   };
@@ -290,6 +301,21 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
             <div className="rounded-md bg-muted p-3 text-sm space-y-1">
               <p>{feedback}</p>
               {modelAnswer && <p className="italic text-muted-foreground">Model: {modelAnswer}</p>}
+            </div>
+          )}
+
+          {speechScore && (
+            <div className="rounded-md border bg-card p-3 text-sm space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="font-medium">Pronunciation & content score</p>
+                <span className={`text-lg font-bold ${speechScore.scorePct >= 70 ? "text-emerald-600 dark:text-emerald-400" : speechScore.scorePct >= 40 ? "text-amber-600 dark:text-amber-400" : "text-red-600 dark:text-red-400"}`}>
+                  {speechScore.scorePct}%
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Words you hit: <span className="text-emerald-600 dark:text-emerald-400">{speechScore.matched.join(", ") || "—"}</span>
+                {speechScore.missed.length > 0 && <> · To practise: <span className="text-red-600 dark:text-red-400">{speechScore.missed.join(", ")}</span></>}
+              </p>
             </div>
           )}
 

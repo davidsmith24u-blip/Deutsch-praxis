@@ -81,6 +81,16 @@ export default function ExamPage() {
         <div className="text-center">
           <Button size="lg" onClick={() => start(levelFilter)} disabled={poolFor(levelFilter).length === 0}>Start exam</Button>
         </div>
+        <div className="rounded-2xl border bg-card p-5 text-center space-y-3">
+          <p className="text-sm font-medium">Want the real thing? Take a full mock exam with all four modules:</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {["A1", "A2", "B1", "B2"].map((l) => (
+              <a key={l} href={`/mock/${l.toLowerCase()}`} className="inline-flex h-10 items-center rounded-full border px-4 text-sm font-medium hover:bg-accent">
+                🎓 {l} mock exam
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

@@ -4,8 +4,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { LEVELS, LESSONS, lessonsByLevel } from "@/data/curriculum";
+import { LESSONS, lessonsByLevel } from "@/data/curriculum";
+import { exercisesDoneToday } from "@/lib/streak";
+import { computeBadges } from "@/lib/badges";
 import Link from "next/link";
+
+const DAILY_GOAL = 10;
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -24,6 +28,13 @@ export default async function DashboardPage() {
 
   const nextLesson = lessonsByLevel(level)[0];
 
+  const [doneToday, badges] = await Promise.all([
+    exercisesDoneToday(user.id),
+    computeBadges(user.id, level, progress?.streak ?? 0),
+  ]);
+  const goalPct = Math.min(100, Math.round((doneToday / DAILY_GOAL) * 100));
+  const earnedBadges = badges.filter((b) => b.earned);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 space-y-8">
       <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8 text-white shadow-lg">
@@ -39,21 +50,25 @@ export default async function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Current level</CardTitle>
-            <CardDescription>{LEVELS.find((l) => l.code === level)?.title}</CardDescription>
+            <CardTitle>Daily goal</CardTitle>
+            <CardDescription>{doneToday} of {DAILY_GOAL} exercises today</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold">{level}</p>
+            <Progress value={goalPct} />
+            <p className="mt-2 text-sm text-muted-foreground">
+              {goalPct >= 100 ? "Goal reached — großartig! 🎉" : `${DAILY_GOAL - doneToday} more to keep your streak`}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>XP & Streak</CardTitle>
-            <CardDescription>Keep the momentum going</CardDescription>
+            <CardTitle>Review due</CardTitle>
+            <CardDescription>Spaced repetition keeps words alive</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{progress?.xp ?? 0} XP</p>
-            <p className="text-muted-foreground">{progress?.streak ?? 0} day streak</p>
+            <Link href="/review" className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+              Start review session
+            </Link>
           </CardContent>
         </Card>
         <Card>
@@ -67,6 +82,26 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Badges</CardTitle>
+          <CardDescription>{earnedBadges.length} of {badges.length} earned</CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-4 gap-3 sm:grid-cols-8">
+          {badges.map((b) => (
+            <div
+              key={b.id}
+              title={b.description}
+              aria-label={`${b.title}${b.earned ? " (earned)" : " (locked)"}`}
+              className={`flex flex-col items-center gap-1 rounded-xl border p-2 text-center ${b.earned ? "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/40" : "opacity-40"}`}
+            >
+              <span className="text-2xl" aria-hidden="true">{b.emoji}</span>
+              <span className="text-[10px] leading-tight font-medium">{b.title}</span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
