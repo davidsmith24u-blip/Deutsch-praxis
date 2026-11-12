@@ -24,6 +24,7 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [matchAnswers, setMatchAnswers] = useState<Record<string, string>>({});
   const recRef = useRef<any>(null);
 
   const persistProgress = async (exerciseId: string, completed: boolean, score: number) => {
@@ -69,7 +70,12 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
   if (exercises.length === 0 || !ex) return <p>No exercises for this skill.</p>;
 
   const checkAnswer = () => {
-    const correct = answer.trim().toLowerCase() === (ex.answer ?? "").trim().toLowerCase();
+    let correct = false;
+    if (ex.type === "matching" && ex.matchingPairs) {
+      correct = ex.matchingPairs.every((p) => (matchAnswers[p.left] ?? "").trim().toLowerCase() === p.right.trim().toLowerCase());
+    } else {
+      correct = answer.trim().toLowerCase() === (ex.answer ?? "").trim().toLowerCase();
+    }
     setChecked(correct);
     persistProgress(ex.id, correct, correct ? 100 : 0);
   };
@@ -140,6 +146,7 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
 
   const next = () => {
     setAnswer("");
+    setMatchAnswers({});
     setChecked(null);
     setFeedback(null);
     setModelAnswer(null);
@@ -206,6 +213,35 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
             <Input value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Your answer" />
           )}
 
+          {ex.type === "matching" && ex.matchingPairs && (
+            <div className="space-y-2">
+              {ex.matchingPairs.map((p) => (
+                <div key={p.left} className="flex items-center gap-2">
+                  <span className="w-24 font-medium">{p.left}</span>
+                  <select
+                    className="rounded-md border bg-background px-2 py-1 text-sm"
+                    value={matchAnswers[p.left] ?? ""}
+                    onChange={(e) => setMatchAnswers((m) => ({ ...m, [p.left]: e.target.value }))}
+                  >
+                    <option value="">Select...</option>
+                    {ex.matchingPairs!.map((pp) => (
+                      <option key={pp.right} value={pp.right}>{pp.right}</option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {ex.type === "open" && (
+            <div className="space-y-2">
+              <Textarea value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Write in German..." className="min-h-[100px]" />
+              <Button onClick={() => { submitWriting(); }} disabled={loading || !answer.trim()}>
+                {loading ? "Checking..." : "Submit"}
+              </Button>
+            </div>
+          )}
+
           {ex.type === "writing" && (
             <div className="space-y-2">
               <Textarea value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Write in German..." className="min-h-[120px]" />
@@ -217,6 +253,12 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
 
           {ex.type === "speaking" && (
             <div className="space-y-2">
+              {ex.modelAnswer && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Listen to a model answer first:</p>
+                  <AudioPlayer text={ex.modelAnswer} label="Model answer" />
+                </div>
+              )}
               <Textarea value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Transcript will appear here..." className="min-h-[80px]" />
               <div className="flex gap-2">
                 {!listening ? (
@@ -231,9 +273,9 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
             </div>
           )}
 
-          {(ex.type === "mcq" || ex.type === "truefalse" || ex.type === "gapfill") && (
+          {(ex.type === "mcq" || ex.type === "truefalse" || ex.type === "gapfill" || ex.type === "matching") && (
             <div className="flex gap-2">
-              <Button onClick={checkAnswer} disabled={!answer.trim()}>Check</Button>
+              <Button onClick={checkAnswer} disabled={ex.type === "matching" ? Object.keys(matchAnswers).length === 0 : !answer.trim()}>Check</Button>
             </div>
           )}
 

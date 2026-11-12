@@ -4,7 +4,7 @@ export type LevelCode = "A1" | "A2" | "B1" | "B2";
 export interface Exercise {
   id: string;
   skill: Skill;
-  type: "mcq" | "truefalse" | "gapfill" | "matching" | "writing" | "speaking";
+  type: "mcq" | "truefalse" | "gapfill" | "matching" | "writing" | "speaking" | "open";
   prompt: string;
   options?: string[];
   answer?: string;
@@ -15,6 +15,7 @@ export interface Exercise {
   vocab?: { word: string; definition: string }[];
   taskType?: "free" | "picture" | "questions" | "roleplay";
   timeLimit?: number;
+  matchingPairs?: { left: string; right: string }[];
 }
 
 export interface Unit {
@@ -45,6 +46,8 @@ export const UNITS: Unit[] = [
       { id: "a1u1-h3", skill: "hoeren", type: "gapfill", prompt: "Fill in the missing word: Guten ___, wie heißt du?", answer: "Tag", audioText: "Guten Tag, wie heißt du?", transcript: "Guten Tag, wie heißt du?" },
       { id: "a1u1-r1", skill: "lesen", type: "mcq", prompt: "What does 'Ich komme aus Spanien' mean?", options: ["I live in Spain", "I come from Spain", "I work in Spain"], answer: "I come from Spain", vocab: [{ word: "kommen", definition: "to come" }, { word: "aus", definition: "from" }] },
       { id: "a1u1-r2", skill: "lesen", type: "truefalse", prompt: "The email says the meeting is at 10:00.", options: ["True", "False"], answer: "False", vocab: [] },
+      { id: "a1u1-r3", skill: "lesen", type: "matching", prompt: "Match the German words to their English meanings.", matchingPairs: [{ left: "Hallo", right: "hello" }, { left: "Danke", right: "thank you" }, { left: "Bitte", right: "please" }] },
+      { id: "a1u1-r4", skill: "lesen", type: "open", prompt: "Write one sentence about where you live (in German).", modelAnswer: "Ich wohne in Berlin." },
       { id: "a1u1-s1", skill: "schreiben", type: "writing", prompt: "Write a short message introducing yourself (name, origin, age).", modelAnswer: "Hallo! Ich heiße Tom. Ich komme aus England und bin 25 Jahre alt." },
       { id: "a1u1-sp1", skill: "sprechen", type: "speaking", prompt: "Introduce yourself in German (name, origin, age).", modelAnswer: "Hallo, ich heiße ... Ich komme aus ... und bin ... Jahre alt.", taskType: "free" },
       { id: "a1u1-sp2", skill: "sprechen", type: "speaking", prompt: "Describe this picture in 4 sentences: a family at a train station.", modelAnswer: "Ich sehe eine Familie am Bahnhof. Der Mann hat einen Koffer. Die Frau liest ein Ticket. Das Kind spielt.", taskType: "picture", timeLimit: 60 },
@@ -63,6 +66,7 @@ export const UNITS: Unit[] = [
       { id: "a1u2-h1", skill: "hoeren", type: "mcq", prompt: "What time is it?", options: ["2:30", "3:00", "3:30"], answer: "2:30", audioText: "Es ist halb drei.", transcript: "Es ist halb drei." },
       { id: "a1u2-h2", skill: "hoeren", type: "gapfill", prompt: "Fill in: Es ist ___ acht. (7:30)", answer: "halb", audioText: "Es ist halb acht.", transcript: "Es ist halb acht." },
       { id: "a1u2-r1", skill: "lesen", type: "mcq", prompt: "How many children does the family have?", options: ["1", "2", "3"], answer: "2" },
+      { id: "a1u2-r2", skill: "lesen", type: "matching", prompt: "Match numbers to words.", matchingPairs: [{ left: "1", right: "eins" }, { left: "2", right: "zwei" }, { left: "3", right: "drei" }] },
       { id: "a1u2-s1", skill: "schreiben", type: "writing", prompt: "Write: 'I have two siblings and live in Munich.'", modelAnswer: "Ich habe zwei Geschwister und wohne in München." },
       { id: "a1u2-sp1", skill: "sprechen", type: "speaking", prompt: "Say the numbers 1 to 10 in German.", modelAnswer: "eins, zwei, drei, vier, fünf, sechs, sieben, acht, neun, zehn" },
     ],
