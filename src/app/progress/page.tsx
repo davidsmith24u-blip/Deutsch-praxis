@@ -14,10 +14,18 @@ export default async function ProgressPage() {
   const { data: progress } = await supabase.from("user_progress").select("*").eq("user_id", user.id).single();
   const { data: sessions } = await supabase.from("interview_sessions").select("id, level_code, started_at, ended_at").eq("user_id", user.id).order("started_at", { ascending: false });
   const { data: lp } = await supabase.from("lesson_progress").select("completed").eq("user_id", user.id);
+  const { data: ep } = await supabase.from("exercise_progress").select("skill, completed").eq("user_id", user.id);
 
   const completedLessons = (lp ?? []).filter((r: any) => r.completed).length;
   const totalLessons = 16; // from curriculum seed count
   const pct = Math.round((completedLessons / totalLessons) * 100);
+
+  const skills = ["lesen", "hoeren", "schreiben", "sprechen"];
+  const skillStats = skills.map((s) => {
+    const rows = (ep ?? []).filter((r: any) => r.skill === s);
+    const done = rows.filter((r: any) => r.completed).length;
+    return { skill: s, done, total: rows.length };
+  });
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 space-y-8">
@@ -48,6 +56,27 @@ export default async function ProgressPage() {
         </CardHeader>
         <CardContent>
           <Progress value={pct} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Skill balance</CardTitle>
+          <CardDescription>Completed exercises per skill</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {skillStats.map((s) => {
+            const pctSkill = s.total ? Math.round((s.done / s.total) * 100) : 0;
+            return (
+              <div key={s.skill} className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span className="capitalize">{s.skill}</span>
+                  <span className="text-muted-foreground">{s.done}/{s.total}</span>
+                </div>
+                <Progress value={pctSkill} />
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 

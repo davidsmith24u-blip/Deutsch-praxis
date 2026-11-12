@@ -15,6 +15,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
         <Badge>{unit.level}</Badge>
         <h1 className="mt-2 text-3xl font-bold">{unit.title}</h1>
         <p className="text-muted-foreground">{unit.description}</p>
+        <p className="text-sm font-medium">Objective: {unit.objective}</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {SKILLS.map((s) => {

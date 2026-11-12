@@ -8,11 +8,13 @@ export interface Exercise {
   prompt: string;
   options?: string[];
   answer?: string;
-  audioText?: string; // for TTS fallback
+  audioText?: string;
   audioUrl?: string;
   transcript?: string;
   modelAnswer?: string;
   vocab?: { word: string; definition: string }[];
+  taskType?: "free" | "picture" | "questions" | "roleplay";
+  timeLimit?: number;
 }
 
 export interface Unit {
@@ -20,6 +22,8 @@ export interface Unit {
   level: LevelCode;
   title: string;
   description: string;
+  objective: string;
+  recycles?: string[];
   order: number;
   unlockThreshold: number; // percent of previous unit to unlock
   exercises: Exercise[];
@@ -31,6 +35,8 @@ export const UNITS: Unit[] = [
     level: "A1",
     title: "Unit 1: Greetings & Introductions",
     description: "Say hello, introduce yourself, and ask basic questions.",
+    objective: "You can introduce yourself and ask someone's name and origin.",
+    recycles: [],
     order: 1,
     unlockThreshold: 0,
     exercises: [
@@ -40,7 +46,8 @@ export const UNITS: Unit[] = [
       { id: "a1u1-r1", skill: "lesen", type: "mcq", prompt: "What does 'Ich komme aus Spanien' mean?", options: ["I live in Spain", "I come from Spain", "I work in Spain"], answer: "I come from Spain", vocab: [{ word: "kommen", definition: "to come" }, { word: "aus", definition: "from" }] },
       { id: "a1u1-r2", skill: "lesen", type: "truefalse", prompt: "The email says the meeting is at 10:00.", options: ["True", "False"], answer: "False", vocab: [] },
       { id: "a1u1-s1", skill: "schreiben", type: "writing", prompt: "Write a short message introducing yourself (name, origin, age).", modelAnswer: "Hallo! Ich heiße Tom. Ich komme aus England und bin 25 Jahre alt." },
-      { id: "a1u1-sp1", skill: "sprechen", type: "speaking", prompt: "Introduce yourself in German (name, origin, age).", modelAnswer: "Hallo, ich heiße ... Ich komme aus ... und bin ... Jahre alt." },
+      { id: "a1u1-sp1", skill: "sprechen", type: "speaking", prompt: "Introduce yourself in German (name, origin, age).", modelAnswer: "Hallo, ich heiße ... Ich komme aus ... und bin ... Jahre alt.", taskType: "free" },
+      { id: "a1u1-sp2", skill: "sprechen", type: "speaking", prompt: "Describe this picture in 4 sentences: a family at a train station.", modelAnswer: "Ich sehe eine Familie am Bahnhof. Der Mann hat einen Koffer. Die Frau liest ein Ticket. Das Kind spielt.", taskType: "picture", timeLimit: 60 },
     ],
   },
   {
@@ -48,6 +55,8 @@ export const UNITS: Unit[] = [
     level: "A1",
     title: "Unit 2: Numbers & Time",
     description: "Count, tell the time, and state dates.",
+    objective: "You can tell the time and state numbers in everyday situations.",
+    recycles: ["greetings", "sein", "haben"],
     order: 2,
     unlockThreshold: 60,
     exercises: [
@@ -63,6 +72,8 @@ export const UNITS: Unit[] = [
     level: "A1",
     title: "Unit 3: Food & Ordering",
     description: "Order food and drinks at a café.",
+    objective: "You can order food and drinks and understand simple menus.",
+    recycles: ["greetings", "numbers", "möchten"],
     order: 3,
     unlockThreshold: 60,
     exercises: [

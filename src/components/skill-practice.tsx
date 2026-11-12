@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getUnit, exercisesBySkill } from "@/data/units";
 import { AudioPlayer } from "@/components/audio-player";
@@ -23,19 +23,55 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
   const [modelAnswer, setModelAnswer] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const recRef = useRef<any>(null);
 
-  if (!unit) return <p>Unit not found.</p>;
-  if (exercises.length === 0) return <p>No exercises for this skill.</p>;
+  const persistProgress = async (exerciseId: string, completed: boolean, score: number) => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      await supabase.from("exercise_progress").upsert({
+        user_id: user.id,
+        exercise_id: exerciseId,
+        unit_id: unitId,
+        skill,
+        completed,
+        score,
+        updated_at: new Date().toISOString(),
+      });
+    } catch {
+      // ignore
+    }
+  };
 
-  const ex = exercises[index];
+  const ex = exercises.length ? exercises[index] : null;
+
+  useEffect(() => {
+    if (!ex) return;
+    if (ex.taskType === "questions" || ex.taskType === "picture") {
+      if (ex.timeLimit) {
+        setTimeLeft(ex.timeLimit);
+        const t = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev === null || prev <= 1) { clearInterval(t); return 0; }
+            return prev - 1;
+          });
+        }, 1000);
+        return () => clearInterval(t);
+      }
+    } else {
+      setTimeLeft(null);
+    }
+  }, [index, ex]);
+
+  if (!unit) return <p>Unit not found.</p>;
+  if (exercises.length === 0 || !ex) return <p>No exercises for this skill.</p>;
 
   const checkAnswer = () => {
-    if (ex.type === "mcq" || ex.type === "truefalse") {
-      setChecked(answer.trim().toLowerCase() === (ex.answer ?? "").trim().toLowerCase());
-    } else if (ex.type === "gapfill") {
-      setChecked(answer.trim().toLowerCase() === (ex.answer ?? "").trim().toLowerCase());
-    }
+    const correct = answer.trim().toLowerCase() === (ex.answer ?? "").trim().toLowerCase();
+    setChecked(correct);
+    persistProgress(ex.id, correct, correct ? 100 : 0);
   };
 
   const submitWriting = async () => {
@@ -51,6 +87,7 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
       const data = await res.json();
       setFeedback(data.feedback);
       setModelAnswer(data.modelAnswer);
+      persistProgress(ex.id, true, 80);
     } catch (e) {
       setFeedback("Request failed");
     } finally {
@@ -71,6 +108,7 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
       const data = await res.json();
       setFeedback(data.feedback);
       setModelAnswer(data.modelAnswer);
+      persistProgress(ex.id, true, 80);
     } catch {
       setFeedback("Request failed");
     } finally {
@@ -123,6 +161,9 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">{ex.prompt}</CardTitle>
+          {ex.taskType && ex.taskType !== "free" && (
+            <p className="text-xs text-muted-foreground">Task type: {ex.taskType}{ex.timeLimit ? ` · ${timeLeft ?? ex.timeLimit}s remaining` : ""}</p>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {(ex.skill === "hoeren") && (ex.audioText || ex.audioUrl) && (
@@ -132,6 +173,17 @@ export default function SkillPractice({ unitId, skill }: { unitId: string; skill
             <div className="rounded-md bg-muted p-3 text-sm">
               <p className="font-medium">Transcript:</p>
               <p>{ex.transcript}</p>
+            </div>
+          )}
+
+          {ex.vocab && ex.vocab.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {ex.vocab.map((v) => (
+                <details key={v.word} className="rounded border px-2 py-1 text-sm">
+                  <summary className="cursor-pointer font-medium">{v.word}</summary>
+                  <span className="text-muted-foreground">{v.definition}</span>
+                </details>
+              ))}
             </div>
           )}
 

@@ -161,6 +161,21 @@ begin
 end;
 $$ language plpgsql security definer;
 
+-- Exercise progress for skill balance
+create table if not exists public.exercise_progress (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  exercise_id text not null,
+  unit_id text not null,
+  skill text not null,
+  completed boolean not null default false,
+  score int,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, exercise_id)
+);
+
+alter table public.exercise_progress enable row level security;
+create policy "exercise_progress self" on public.exercise_progress for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
 -- Seed levels
 insert into public.levels (code, title, description, "order") values
   ('A1','A1 — Beginner','First steps: greetings, personal info, basic verbs.',1),

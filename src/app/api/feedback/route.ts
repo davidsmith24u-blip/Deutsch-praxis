@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 Task: ${task}
 Learner answer: ${answer}
 Return ONLY JSON with keys:
-- feedback: encouraging, level-appropriate feedback (English or German)
+- feedback: encouraging feedback focused on task achievement + ONE main grammar point + ONE vocabulary suggestion (English or German)
 - correction: corrected version of the learner's answer (German)
 - modelAnswer: a model answer (German)`;
 
