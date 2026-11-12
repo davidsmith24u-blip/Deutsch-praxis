@@ -4,21 +4,23 @@ import { LEVELS } from "@/data/curriculum";
 
 export default function Home() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 space-y-16">
-      <section className="text-center space-y-6">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-          Learn German from A1 to B2
-        </h1>
-        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          DeutschPraxis combines structured lessons with AI voice interview practice to help you speak confidently.
-        </p>
-        <div className="flex justify-center gap-3">
-          <Link href="/signup" className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-            Get started
-          </Link>
-          <Link href="/curriculum" className="inline-flex h-11 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium hover:bg-accent">
-            Browse curriculum
-          </Link>
+    <div className="mx-auto max-w-6xl px-4 py-12 space-y-16">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-10 text-white shadow-lg">
+        <div className="relative z-10 max-w-2xl space-y-6">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+            Learn German from A1 to B2
+          </h1>
+          <p className="text-lg text-white/90">
+            DeutschPraxis combines structured lessons with AI voice interview practice to help you speak confidently.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/signup" className="inline-flex h-12 items-center justify-center rounded-full bg-white px-8 text-sm font-semibold text-indigo-600 shadow hover:bg-white/90">
+              Get started
+            </Link>
+            <Link href="/units" className="inline-flex h-12 items-center justify-center rounded-full border border-white/40 bg-white/10 px-8 text-sm font-semibold text-white backdrop-blur hover:bg-white/20">
+              Browse units
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -30,7 +32,7 @@ export default function Home() {
               <CardDescription>{l.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/curriculum" className="text-sm underline">Explore</Link>
+              <Link href="/units" className="text-sm font-medium text-primary underline">Explore</Link>
             </CardContent>
           </Card>
         ))}
@@ -38,7 +40,7 @@ export default function Home() {
 
       <section className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader><CardTitle>Structured lessons</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Structured units</CardTitle></CardHeader>
           <CardContent className="text-muted-foreground">Grammar, vocabulary, and exercises for every CEFR level.</CardContent>
         </Card>
         <Card>
