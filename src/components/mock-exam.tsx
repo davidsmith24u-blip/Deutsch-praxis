@@ -153,6 +153,9 @@ export default function MockExam({ level, modules }: { level: string; modules: M
         </div>
         <div className="flex justify-center gap-3">
           <Button variant="outline" onClick={() => router.push("/exam")}>Quick exam</Button>
+          {allPassed && (
+            <Button onClick={() => router.push("/certificate")}>Get certificate 🏅</Button>
+          )}
           <Button onClick={() => { setStarted(false); setPhase(0); setAnswers({}); setTimeLeft(totalSeconds); setFinished(false); }}>Retake mock</Button>
         </div>
       </div>

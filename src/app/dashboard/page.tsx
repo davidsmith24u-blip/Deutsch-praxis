@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { LESSONS, lessonsByLevel } from "@/data/curriculum";
 import { exercisesDoneToday } from "@/lib/streak";
+import { getWeeklyQuests } from "@/lib/quests";
 import { computeBadges } from "@/lib/badges";
 import Link from "next/link";
 
@@ -28,9 +29,10 @@ export default async function DashboardPage() {
 
   const nextLesson = lessonsByLevel(level)[0];
 
-  const [doneToday, badges] = await Promise.all([
+  const [doneToday, badges, weekly] = await Promise.all([
     exercisesDoneToday(user.id),
     computeBadges(user.id, level, progress?.streak ?? 0),
+    getWeeklyQuests(user.id),
   ]);
   const goalPct = Math.min(100, Math.round((doneToday / DAILY_GOAL) * 100));
   const earnedBadges = badges.filter((b) => b.earned);
@@ -84,6 +86,34 @@ export default async function DashboardPage() {
       </div>
 
       <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle>Weekly quests 🎯</CardTitle>
+            <CardDescription>
+              {weekly.quests.filter((q) => q.count >= q.target).length} of {weekly.quests.length} complete · resets Monday
+            </CardDescription>
+          </div>
+          <Link href="/quests" className="text-sm font-medium text-primary underline">
+            Open quests →
+          </Link>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          {weekly.quests.map((q) => {
+            const pct = Math.min(100, Math.round((q.count / q.target) * 100));
+            return (
+              <div key={q.id} className="space-y-1.5">
+                <p className="text-sm font-medium">
+                  <span aria-hidden="true">{q.icon}</span> {q.title}{" "}
+                  <span className="text-xs font-normal text-muted-foreground">{q.count}/{q.target}</span>
+                </p>
+                <Progress value={pct} />
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader>
           <CardTitle>Badges</CardTitle>
           <CardDescription>{earnedBadges.length} of {badges.length} earned</CardDescription>
@@ -134,6 +164,10 @@ export default async function DashboardPage() {
           <CardContent className="flex flex-wrap gap-2">
             <Link href="/curriculum" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Browse curriculum</Link>
             <Link href="/units" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Units</Link>
+            <Link href="/roadmap" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Roadmap</Link>
+            <Link href="/stories" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Stories</Link>
+            <Link href="/quests" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Weekly quests</Link>
+            <Link href="/certificate" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Certificates</Link>
             <Link href="/interview" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Start interview</Link>
             <Link href="/exam" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Exam mode</Link>
             <Link href="/mock/a1" className="inline-flex h-10 items-center justify-center rounded-md bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-secondary/80">Mock exam</Link>

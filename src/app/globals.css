@@ -102,3 +102,19 @@ body {
 .text-size-sm { font-size: 16px; }
 .text-size-md { font-size: 18px; }
 .text-size-lg { font-size: 20px; }
+/* Certificate printing: only the active certificate is printed. */
+@media print {
+  header, footer, nav, .no-print { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .cert { display: none !important; }
+  .cert.print-me {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    border-width: 4px !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    background: #fff !important;
+  }
+  .cert.print-me * { color: #000 !important; }
+}

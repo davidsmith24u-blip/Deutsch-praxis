@@ -85,6 +85,7 @@ export default function ReviewClient() {
         reps: next.reps,
         lapses: next.lapses,
         due_at: next.dueAt.toISOString(),
+        last_reviewed_at: new Date().toISOString(),
       }).eq("id", card.id);
     } catch {
       // non-fatal

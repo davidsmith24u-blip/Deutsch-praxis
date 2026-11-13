@@ -6,6 +6,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { Navbar } from "@/components/navbar";
 import { PwaRegister } from "@/components/pwa-register";
 import { BottomNav } from "@/components/bottom-nav";
+import { CommandPalette } from "@/components/command-palette";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Navbar />
             <main className="flex-1 pb-20 md:pb-0">{children}</main>
             <BottomNav />
+            <CommandPalette />
             <footer className="border-t py-6 text-center text-sm text-muted-foreground">
               © {new Date().getFullYear()} DeutschPraxis
             </footer>

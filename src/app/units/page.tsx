@@ -1,7 +1,7 @@
-import { LEVELS, UNITS, SKILLS } from "@/data/units";
+import { UNITS } from "@/data/units";
 import { fetchCustomUnits } from "@/lib/custom-units";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { createClient } from "@/lib/supabase/server";
+import UnitsClient, { type UnitProgress } from "@/components/units-client";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -9,65 +9,35 @@ export const dynamic = "force-dynamic";
 export default async function UnitsPage() {
   const custom = await fetchCustomUnits();
   const all = [...UNITS, ...custom];
+
+  // per-unit progress for the logged-in user
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const progress: Record<string, UnitProgress> = {};
+  if (user) {
+    const { data: rows } = await supabase
+      .from("exercise_progress")
+      .select("unit_id, completed")
+      .eq("user_id", user.id);
+    for (const r of rows ?? []) {
+      const entry = progress[(r as any).unit_id] ?? { done: 0, total: 0 };
+      const total = all.find((u) => u.id === (r as any).unit_id)?.exercises.length ?? 0;
+      entry.total = total;
+      if ((r as any).completed) entry.done += 1;
+      progress[(r as any).unit_id] = entry;
+    }
+  }
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 space-y-10">
+    <div className="mx-auto max-w-6xl px-4 py-10 space-y-8">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">Units</h1>
         <p className="text-muted-foreground">
-          Goethe-style practice across all four skills. Each unit has a clear learning objective.
+          Goethe-style practice across all four skills — {all.length} units, A1 to C2.{" "}
+          <Link href="/roadmap" className="text-primary underline">See the level roadmap →</Link>
         </p>
       </div>
-      {LEVELS.map((lvl) => {
-        const units = all.filter((u) => u.level === lvl.code).sort((a, b) => a.order - b.order);
-        return (
-          <section key={lvl.code} className="space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-sm font-bold text-secondary-foreground">
-                {lvl.code}
-              </span>
-              <div>
-                <h2 className="text-xl font-semibold">{lvl.title}</h2>
-                <p className="text-sm text-muted-foreground">{lvl.description}</p>
-              </div>
-              <Badge className="ml-auto">{units.length} units</Badge>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {units.map((u) => (
-                <Link key={u.id} href={`/units/${u.id}`} className="group">
-                  <Card className="h-full group-hover:border-primary/50">
-                    <CardHeader className="space-y-2">
-                      <CardTitle className="text-lg">{u.title}</CardTitle>
-                      <CardDescription className="line-clamp-2">{u.objective}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex flex-wrap gap-1.5">
-                        {SKILLS.map((s) => {
-                          const count = u.exercises.filter((e) => e.skill === s.code).length;
-                          return (
-                            <span
-                              key={s.code}
-                              title={`${count} ${s.title} exercises`}
-                              aria-label={`${count} ${s.title} exercises`}
-                              className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs text-muted-foreground"
-                            >
-                              <span aria-hidden="true">{s.icon}</span> {count}
-                            </span>
-                          );
-                        })}
-                      </div>
-                      {u.recycles && u.recycles.length > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          Recycles: {u.recycles.join(", ")}
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      <UnitsClient units={all} progress={progress} />
     </div>
   );
 }
