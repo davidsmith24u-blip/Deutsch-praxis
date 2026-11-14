@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, Mic, MicOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { scoreSpeech, type SpeechScore } from "@/lib/speech-score";
+import { addMistake } from "@/lib/mistakes";
 
 export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitId: string; skill: string; unit?: Unit | null }) {
   const router = useRouter();
@@ -88,6 +89,17 @@ export default function SkillPractice({ unitId, skill, unit: unitProp }: { unitI
     }
     setChecked(correct);
     persistProgress(ex.id, correct, correct ? 100 : 0);
+    if (!correct) {
+      const correctAnswer = ex.type === "matching" ? ex.matchingPairs?.map((p) => `${p.left} → ${p.right}`).join("; ") ?? "" : ex.answer ?? "";
+      addMistake({
+        question: ex.prompt,
+        yourAnswer: ex.type === "matching" ? JSON.stringify(matchAnswers) : answer,
+        correctAnswer,
+        skill: ex.skill,
+        level: unit.level,
+        source: `Unit ${unit.id}`,
+      });
+    }
   };
 
   const submitWriting = async () => {

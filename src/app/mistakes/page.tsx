@@ -1,68 +1,113 @@
-export const dynamic = "force-dynamic";
+"use client";
 
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { getMistakes, removeMistake, clearMistakes, mistakesBySkill, type Mistake } from "@/lib/mistakes";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
-export default async function MistakesPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+export default function MistakesPage() {
+  const [mistakes, setMistakes] = useState<Mistake[]>([]);
+  const [filter, setFilter] = useState<string>("all");
 
-  const { data: patterns } = await supabase
-    .from("mistake_patterns")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("count", { ascending: false });
+  useEffect(() => {
+    setMistakes(getMistakes());
+  }, []);
 
-  const { data: mem } = await supabase.from("user_memory").select("*").eq("user_id", user.id).single();
+  const refresh = () => setMistakes(getMistakes());
 
-  const total = (patterns ?? []).reduce((a: number, p: any) => a + (p.count ?? 0), 0);
+  const filtered = filter === "all" ? mistakes : mistakes.filter((m) => m.skill === filter);
+  const counts = mistakesBySkill();
+  const skills = ["lesen", "hoeren", "schreiben", "sprechen"];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Mistakes Dashboard</h1>
-        <p className="text-muted-foreground">Your most frequent error categories. The AI will target these in future interviews.</p>
+    <div className="mx-auto max-w-4xl px-4 py-10 space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">Mistake book 📓</h1>
+        <p className="text-muted-foreground">
+          Every wrong answer you made is saved here for spaced re-drill. {mistakes.length} mistake
+          {mistakes.length === 1 ? "" : "s"} total.
+        </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      {mistakes.length === 0 ? (
         <Card>
-          <CardHeader><CardTitle>Total mistakes</CardTitle></CardHeader>
-          <CardContent><p className="text-4xl font-bold">{total}</p></CardContent>
+          <CardContent className="py-10 text-center">
+            <p className="text-lg font-semibold">No mistakes yet 🎉</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Get practicing — anything you get wrong will appear here.
+            </p>
+            <Link href="/units" className="mt-4 inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+              Start practicing
+            </Link>
+          </CardContent>
         </Card>
-        <Card>
-          <CardHeader><CardTitle>Categories</CardTitle></CardHeader>
-          <CardContent><p className="text-4xl font-bold">{patterns?.length ?? 0}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>Recurring</CardTitle></CardHeader>
-          <CardContent><p className="text-sm">{(mem?.common_errors ?? []).join(", ") || "None yet"}</p></CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Frequent error categories</CardTitle>
-          <CardDescription>Sorted by frequency</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {(patterns ?? []).map((p: any) => (
-              <div key={p.id} className="rounded-md border p-3">
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold">{p.grammar_point}</p>
-                  <Badge>{p.count}x</Badge>
-                </div>
-                {p.example && <p className="mt-1 text-sm text-muted-foreground">Example: {p.example}</p>}
-                {p.correction && <p className="text-sm text-green-600">Correction: {p.correction}</p>}
-              </div>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setFilter("all")}
+              className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium ${filter === "all" ? "border-transparent bg-primary text-primary-foreground" : "bg-background hover:bg-accent"}`}
+            >
+              All ({mistakes.length})
+            </button>
+            {skills.map((s) => (
+              <button
+                key={s}
+                onClick={() => setFilter(s)}
+                className={`inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium ${filter === s ? "border-transparent bg-primary text-primary-foreground" : "bg-background hover:bg-accent"}`}
+              >
+                {s} ({counts[s] ?? 0})
+              </button>
             ))}
-            {(!patterns || patterns.length === 0) && <p className="text-muted-foreground">No mistakes tracked yet. Start an interview!</p>}
+            <button
+              onClick={() => {
+                if (confirm("Clear all mistakes?")) {
+                  clearMistakes();
+                  refresh();
+                }
+              }}
+              className="ml-auto text-xs text-muted-foreground underline hover:text-destructive"
+            >
+              Clear all
+            </button>
           </div>
-        </CardContent>
-      </Card>
+
+          <div className="space-y-3">
+            {filtered.map((m) => (
+              <Card key={m.id}>
+                <CardHeader className="space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="text-base">{m.question}</CardTitle>
+                    <button
+                      onClick={() => {
+                        removeMistake(m.id);
+                        refresh();
+                      }}
+                      className="text-xs text-muted-foreground hover:text-destructive"
+                      aria-label="Remove mistake"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <CardDescription>
+                    {m.level} · {m.skill} · {new Date(m.createdAt).toLocaleDateString()} · {m.source}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-1 text-sm">
+                  <p>
+                    <span className="font-medium text-red-600 dark:text-red-400">Your answer:</span>{" "}
+                    <span className="text-muted-foreground">{m.yourAnswer || "(blank)"}</span>
+                  </p>
+                  <p>
+                    <span className="font-medium text-emerald-600 dark:text-emerald-400">Correct:</span>{" "}
+                    <span>{m.correctAnswer}</span>
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

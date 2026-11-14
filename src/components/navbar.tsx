@@ -50,6 +50,7 @@ export function Navbar() {
           <Link href="/units" className="hover:text-primary">{t("units")}</Link>
           <Link href="/roadmap" className="hover:text-primary">Roadmap</Link>
           <Link href="/stories" className="hover:text-primary">Stories</Link>
+          <Link href="/grammar" className="hover:text-primary">Grammar</Link>
           <Link href="/street" className="hover:text-primary">Street</Link>
           <Link href="/exam" className="hover:text-primary">{t("exam")}</Link>
           <Link href="/review" className="hover:text-primary">{t("review")}</Link>
